@@ -1,0 +1,48 @@
+@CHARSET "UTF-8";
+
+.clear {
+	clear: both;
+}
+
+#main_img {
+	width: 971px;
+	height: 308px;
+	/* background-image: url("../images/img_back.png"); */
+	background-repeat: no-repeat;
+	background-position: center top;
+}
+
+#main_img img {
+	margin: 9px 0 0 0
+} 
+
+article#front {
+	margin: 5px 0px 5px 0px
+}
+
+#solution {
+	float: left;
+	border-radius: 10px;
+	width: 910px;
+	min-height: 150px;
+	background-color: #FFF;
+	padding: 10px;
+	margin: 0 0 0 20px;
+	box-shadow: 0 4px 8px 0 rgb(0 0 0 / 5%);
+	border: solid 1px rgba(220,224,230,0.8);
+	border-radius: 10px;
+}
+
+#hosting, #security, #payment {
+	width: 30%;
+	float: left;
+	padding: 10px
+}
+
+@font-face {
+	font-family: "seo";
+	src: url("../images/segoeui.eot");
+	src: local(""), url("../images/segoeui.woff") format("woff"),
+		url("../images/segoeui.ttf") format("truetype");
+}
+

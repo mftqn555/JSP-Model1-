@@ -1,0 +1,161 @@
+<%@page import="com.navi.member.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<link href="../css/default.css" rel="stylesheet" type="text/css">
+<link href="../css/subpage.css" rel="stylesheet" type="text/css">
+
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>
+	    function execDaumPostcode() {
+	        new daum.Postcode({
+	            oncomplete: function(data) {
+	            	
+	                var roadAddr = data.roadAddress; 
+	                var extraRoadAddr = ''; 
+	
+	                if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+	                    extraRoadAddr += data.bname;
+	                }
+	                
+	                if(data.buildingName !== '' && data.apartment === 'Y'){
+	                   extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+	                }
+	                
+	                if(extraRoadAddr !== ''){
+	                    extraRoadAddr = ' (' + extraRoadAddr + ')';
+	                }
+	
+	                document.getElementById('postcode').value = data.zonecode;
+	                document.getElementById("roadAddress").value = roadAddr;
+	                document.getElementById("jibunAddress").value = data.jibunAddress;
+	                
+	                if(roadAddr !== ''){
+	                    document.getElementById("extraAddress").value = extraRoadAddr;
+	                } else {
+	                    document.getElementById("extraAddress").value = '';
+	                }
+	
+	                var guideTextBox = document.getElementById("guide");
+	                // 사용자가 '선택 안함'을 클릭한 경우, 예상 주소라는 표시를 해준다.
+	                if(data.autoRoadAddress) {
+	                    var expRoadAddr = data.autoRoadAddress + extraRoadAddr;
+	                    guideTextBox.innerHTML = '(예상 도로명 주소 : ' + expRoadAddr + ')';
+	                    guideTextBox.style.display = 'block';
+	
+	                } else if(data.autoJibunAddress) {
+	                    var expJibunAddr = data.autoJibunAddress;
+	                    guideTextBox.innerHTML = '(예상 지번 주소 : ' + expJibunAddr + ')';
+	                    guideTextBox.style.display = 'block';
+	                } else {
+	                    guideTextBox.innerHTML = '';
+	                    guideTextBox.style.display = 'none';
+	                }
+	            }
+	        }).open();
+	    }
+	</script> 
+	<script type="text/javascript">
+	function checkUpdate(){
+		if(document.fr.id.value.length < 5) {
+			alert("아이디는 5글자 이상이여야 합니다");
+			document.fr.id.focus();
+			return false;
+		}
+		
+		if(document.fr.name.value.length < 2){
+			alert(" 이름을 입력하세요. ");
+			document.fr.name.focus();
+			return false;
+		}
+		
+		if(document.fr.email.value.length < 2){
+			alert(" 이메일을 입력하세요. ");
+			document.fr.name.focus();
+			return false;
+		}
+		
+		var email = document.fr.email.value;
+		var exptext = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/;
+	
+		if(exptext.test(email)==false){
+			//이메일 형식이 알파벳+숫자@알파벳+숫자.알파벳+숫자 형식이 아닐경우			
+			alert("이메일형식이 올바르지 않습니다.");
+			document.fr.email.focus();
+			return false;
+		}
+		
+	}
+	</script>
+</head>
+<body>
+
+	<%
+		String id = (String)session.getAttribute("id");
+		
+		if(id == null){
+			response.sendRedirect("../alert/wrongApproach.jsp");
+		}
+	
+		MemberDAO mDao = new MemberDAO();
+		
+		String[] info = mDao.info(id);
+	%>
+	<!-- 헤더 -->
+	<jsp:include page="../inc/top.jsp" />
+	<!-- 헤더 -->
+	<div id="wrap">
+		<!-- 본문들어가는 곳 -->
+		<!-- 왼쪽메뉴 -->
+		<nav id="sub_menu">
+			<ul>
+				<li><a href="#">Join us</a></li>
+				<li><a href="#">Privacy policy</a></li>
+			</ul>
+		</nav>
+		<!-- 왼쪽메뉴 -->
+		<!-- 본문내용 -->
+		<article class="board_box">
+			<h1>회원정보 수정</h1>
+			<form action="updatePro.jsp" id="join" name="fr" method="POST" onsubmit="return checkUpdate();">
+				<fieldset>
+					<legend>회원 정보</legend>
+					<input type="hidden" name="pass" value="<%=info[1]%>">
+					<label>아이디</label> <input type="text" name="id" class="id" value="<%=info[0]%>" readonly="readonly"> <br>
+					<label>성명</label> <input type="text" name="name" value="<%=info[2]%>"><br>
+					<label>이메일</label> <input type="email" name="email" value="<%=info[3] %>"><br>
+					<!-- 가입축하메일 보내기 -->
+				</fieldset>
+
+				<fieldset>
+					<legend>주소</legend>
+				
+					<input type="text" id="postcode" name="zonecode" value="<%=info[5]%>" placeholder="우편번호">
+					<input type="button" onclick="execDaumPostcode()" value="우편번호 찾기"><br>
+					<input type="text" id="roadAddress" name="roadAddress" value="<%=info[6]%>" placeholder="도로명주소">
+					<input type="text" id="jibunAddress" name="jibunAddress" value="<%=info[7]%>" placeholder="지번주소">
+					<span id="guide" style="color:#999;display:none"></span>
+					<input type="text" id="detailAddress" name="detailAddress" value="<%=info[8]%>" placeholder="상세주소">
+					<input type="text" id="extraAddress" name="extraAddress" value="<%=info[9]%>" placeholder="참고항목">
+					
+				</fieldset>
+				<div class="clear"></div>
+				<div id="buttons">
+					<input type="submit" value="Submit" class="submit"> <input
+						type="button" value="Cancel" class="cancel">
+				</div>
+			</form>
+		</article>
+		<!-- 본문내용 -->
+		<!-- 본문들어가는 곳 -->
+		<div class="clear"></div>
+	</div>
+	<!-- 푸터 -->
+	<jsp:include page="../inc/bottom.jsp" />
+	<!-- 푸터 -->
+</body>
+</html>
